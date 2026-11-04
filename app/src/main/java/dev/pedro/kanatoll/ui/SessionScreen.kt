@@ -23,6 +23,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,18 +49,20 @@ import dev.pedro.kanatoll.domain.wrongKana
 import kotlin.math.roundToInt
 
 @Composable
-fun SessionScreen(vm: SessionViewModel, onExit: () -> Unit) {
+fun SessionScreen(vm: SessionLike, onExit: () -> Unit, onMore: (() -> Unit)? = null) {
     val ui by vm.ui.collectAsState()
     val progress by vm.progress.collectAsState()
+    // Sair da tela (por qualquer caminho) grava a resposta que ficou pendente.
+    DisposableEffect(vm) { onDispose { vm.flush() } }
     Column(Modifier.fillMaxSize()) {
         if (ui is SessionUi.Asking || ui is SessionUi.Feedback) TopBar(progress, onExit) else Spacer(Modifier.height(70.dp))
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when (val s = ui) {
                 SessionUi.Loading -> Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
-                SessionUi.Empty -> EmptyView(onExit)
+                SessionUi.Empty -> EmptyView(onExit, onMore)
                 is SessionUi.Asking -> AskingView(s, vm::submit, vm::speak)
-                is SessionUi.Feedback -> FeedbackView(s, vm::next)
-                is SessionUi.Done -> DoneView(s, onExit)
+                is SessionUi.Feedback -> FeedbackView(s, vm::next, vm::override)
+                is SessionUi.Done -> DoneView(s, onExit, onMore)
             }
         }
     }
@@ -170,7 +173,7 @@ private fun OptionGrid(options: List<String>, onPick: (String) -> Unit) {
 }
 
 @Composable
-internal fun FeedbackView(s: SessionUi.Feedback, onNext: () -> Unit) {
+internal fun FeedbackView(s: SessionUi.Feedback, onNext: () -> Unit, onOverride: (() -> Unit)? = null) {
     val card = s.q.card
     val scheme = MaterialTheme.colorScheme
     val strong = if (s.correct) scheme.primary else scheme.tertiary
@@ -218,26 +221,35 @@ internal fun FeedbackView(s: SessionUi.Feedback, onNext: () -> Unit) {
                     Text(detail, style = MaterialTheme.typography.bodyMedium, color = onTint)
                 }
             }
-            Spacer(Modifier.height(22.dp))
+            if (s.canOverride && onOverride != null) {
+                // Parece erro de digitação: a resposta só é gravada depois de você escolher.
+                Spacer(Modifier.height(14.dp))
+                ActionButton("Foi erro de digitação: vale como certo", onOverride, Modifier.fillMaxWidth(), filled = false)
+            }
+            Spacer(Modifier.height(if (s.canOverride && onOverride != null) 10.dp else 22.dp))
             PrimaryButton("Continuar", onNext, color = strong)
         }
     }
 }
 
 @Composable
-private fun EmptyView(onExit: () -> Unit) {
+private fun EmptyView(onExit: () -> Unit, onMore: (() -> Unit)?) {
     Column(Modifier.fillMaxSize().padding(horizontal = 26.dp, vertical = 14.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(Modifier.weight(1f))
         Text("Nada para revisar agora.", style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.height(8.dp))
         Text("Volte mais tarde.", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.weight(1f))
+        onMore?.let {
+            ActionButton("Estudar à frente (10 cartões)", it, Modifier.fillMaxWidth(), filled = false)
+            Spacer(Modifier.height(10.dp))
+        }
         PrimaryButton("Voltar", onExit)
     }
 }
 
 @Composable
-private fun DoneView(s: SessionUi.Done, onExit: () -> Unit) {
+private fun DoneView(s: SessionUi.Done, onExit: () -> Unit, onMore: (() -> Unit)?) {
     val percent = if (s.total == 0) 0 else (100f * s.correct / s.total).roundToInt()
     Column(Modifier.fillMaxSize().padding(horizontal = 26.dp, vertical = 14.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(Modifier.weight(1f))
@@ -259,6 +271,10 @@ private fun DoneView(s: SessionUi.Done, onExit: () -> Unit) {
             }
         }
         Spacer(Modifier.weight(1f))
+        onMore?.let {
+            ActionButton("Estudar mais 10 cartões", it, Modifier.fillMaxWidth(), filled = false)
+            Spacer(Modifier.height(10.dp))
+        }
         PrimaryButton("Voltar", onExit)
     }
 }

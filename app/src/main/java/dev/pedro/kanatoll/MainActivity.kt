@@ -19,6 +19,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.pedro.kanatoll.ui.AboutScreen
 import dev.pedro.kanatoll.ui.HomeScreen
 import dev.pedro.kanatoll.ui.KanaTheme
+import dev.pedro.kanatoll.ui.AheadSessionViewModel
 import dev.pedro.kanatoll.ui.SessionScreen
 import dev.pedro.kanatoll.ui.SessionViewModel
 import dev.pedro.kanatoll.rhythm.RhythmViewModel
@@ -28,7 +29,7 @@ import dev.pedro.kanatoll.ui.StatsScreen
 import dev.pedro.kanatoll.ui.TraceScreen
 import dev.pedro.kanatoll.ui.TollSettingsScreen
 
-private enum class Screen { HOME, SESSION, SETTINGS, ABOUT, TOLL, TRACE, RHYTHM, STATS }
+private enum class Screen { HOME, SESSION, AHEAD, SETTINGS, ABOUT, TOLL, TRACE, RHYTHM, STATS }
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +42,9 @@ class MainActivity : ComponentActivity() {
                         var screen by rememberSaveable { mutableStateOf(Screen.HOME) }
                         // Cada sessão tem a sua chave, para não reaproveitar o ViewModel da anterior.
                         var sessionKey by rememberSaveable { mutableIntStateOf(0) }
+                        var aheadKey by rememberSaveable { mutableIntStateOf(0) }
                         var rhythmKey by rememberSaveable { mutableIntStateOf(0) }
+                        val more = { aheadKey++; screen = Screen.AHEAD }
                         val home = { screen = Screen.HOME }
                         val settings = { screen = Screen.SETTINGS }
                         // O Pedágio e o Sobre vivem dentro de Configurações: Voltar sai deles para lá.
@@ -49,12 +52,14 @@ class MainActivity : ComponentActivity() {
                         when (screen) {
                             Screen.HOME -> HomeScreen(
                                 onStudy = { sessionKey++; screen = Screen.SESSION },
+                                onAhead = more,
                                 onTrace = { screen = Screen.TRACE },
                                 onRhythm = { rhythmKey++; screen = Screen.RHYTHM },
                                 onStats = { screen = Screen.STATS },
                                 onSettings = { screen = Screen.SETTINGS },
                             )
-                            Screen.SESSION -> SessionScreen(viewModel<SessionViewModel>(key = "session$sessionKey"), home)
+                            Screen.SESSION -> SessionScreen(viewModel<SessionViewModel>(key = "session$sessionKey"), home, onMore = more)
+                            Screen.AHEAD -> SessionScreen(viewModel<AheadSessionViewModel>(key = "ahead$aheadKey"), home, onMore = more)
                             Screen.SETTINGS -> SettingsScreen(home, onToll = { screen = Screen.TOLL }, onAbout = { screen = Screen.ABOUT })
                             Screen.ABOUT -> AboutScreen(settings)
                             Screen.STATS -> StatsScreen(home)

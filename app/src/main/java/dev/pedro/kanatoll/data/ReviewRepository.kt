@@ -96,6 +96,9 @@ class ReviewRepository(
 
     suspend fun dueCount(): Int = cards.dueCount(clock.millis())
 
+    /** Os próximos [n] cartões a vencer, para estudar à frente quando não há nada devido. */
+    suspend fun aheadCards(n: Int): List<Card> = cards.upcoming(clock.millis(), n)
+
     /** Estatísticas calculadas sobre todo o histórico (cartões, respostas e confusões). */
     suspend fun stats(): StatsSummary =
         computeStats(cards.all(), logs.all(), confusions.all(), clock.millis(), clock.zone)

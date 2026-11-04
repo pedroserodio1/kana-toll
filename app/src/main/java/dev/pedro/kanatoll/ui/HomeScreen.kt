@@ -32,7 +32,14 @@ import dev.pedro.kanatoll.data.GateProgress
 import dev.pedro.kanatoll.data.HomeStats
 
 @Composable
-fun HomeScreen(onStudy: () -> Unit, onTrace: () -> Unit, onRhythm: () -> Unit, onStats: () -> Unit, onSettings: () -> Unit) {
+fun HomeScreen(
+    onStudy: () -> Unit,
+    onAhead: () -> Unit,
+    onTrace: () -> Unit,
+    onRhythm: () -> Unit,
+    onStats: () -> Unit,
+    onSettings: () -> Unit,
+) {
     val repo = (LocalContext.current.applicationContext as KanaApp).container.reviews
     var stats by remember { mutableStateOf<HomeStats?>(null) }
     // A tela é recriada ao voltar da sessão, então isto recarrega os números.
@@ -95,6 +102,11 @@ fun HomeScreen(onStudy: () -> Unit, onTrace: () -> Unit, onRhythm: () -> Unit, o
             }
         }
         Spacer(Modifier.height(12.dp))
+        // Sem nada devido: dá para estudar os próximos cartões à frente.
+        if (s.due == 0) {
+            ModeButton("Estudar à frente", onAhead, Modifier.fillMaxWidth())
+            Spacer(Modifier.height(12.dp))
+        }
         // Modos extras: treino à parte, não contam para o portão.
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
             ModeButton("Traçado", onTrace, Modifier.weight(1f))

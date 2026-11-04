@@ -33,6 +33,10 @@ interface CardDao {
     @Query("SELECT * FROM card WHERE introducedAt IS NOT NULL AND due <= :now AND direction = :direction ORDER BY due LIMIT :limit")
     suspend fun dueByDirection(now: Long, direction: Direction, limit: Int): List<Card>
 
+    /** Estudar à frente: os próximos cartões a vencer (ainda não devidos), os mais próximos primeiro. */
+    @Query("SELECT * FROM card WHERE introducedAt IS NOT NULL AND due > :now ORDER BY due LIMIT :limit")
+    suspend fun upcoming(now: Long, limit: Int): List<Card>
+
     /** Ritmo: cartões de leitura (kana → rōmaji) já estáveis, de qualquer script. */
     @Query("SELECT * FROM card WHERE direction = 'KANA_TO_ROMAJI' AND introducedAt IS NOT NULL AND stability >= :minStability")
     suspend fun stableReading(minStability: Double): List<Card>
