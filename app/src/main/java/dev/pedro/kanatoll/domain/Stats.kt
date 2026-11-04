@@ -30,6 +30,17 @@ data class ScriptProgress(
     val solid: Int,
 )
 
+/** Faixa de estabilidade de um kana: pelo cartão mais fraco entre leitura e produção. */
+enum class KanaLevel { FRESH, LEARNING, STABLE, SOLID }
+
+data class KanaCell(val glyph: String, val level: KanaLevel)
+
+private fun levelOf(stability: Double) = when {
+    stability < 7.0 -> KanaLevel.LEARNING
+    stability < 30.0 -> KanaLevel.STABLE
+    else -> KanaLevel.SOLID
+}
+
 data class KanaTrouble(val glyph: String, val romaji: String, val answers: Int, val errors: Int) {
     val errorRate: Float get() = errors.toFloat() / answers
 }
@@ -46,6 +57,8 @@ data class StatsSummary(
     val byDirection: Map<Direction, AccuracyCount>,
     val bySource: Map<Source, Int>,
     val scripts: Map<Script, ScriptProgress>,
+    /** Os 107 kana de cada script semeado, na ordem de introdução, cada um com a sua faixa. */
+    val kanaMap: Map<Script, List<KanaCell>>,
     /** Cartões vencendo hoje (incluindo atrasados) e nos 6 dias seguintes. */
     val dueNext7Days: List<Int>,
     val trouble: List<KanaTrouble>,
@@ -98,6 +111,22 @@ fun computeStats(
         )
     }.toMap()
 
+    val kanaMap = Script.entries.mapNotNull { script ->
+        val gate = cards.filter { it.script == script && it.direction != Direction.AUDIO_TO_KANA }
+        if (gate.isEmpty()) return@mapNotNull null
+        val byGlyph = gate.groupBy { it.kana }
+        script to KanaTable.all.map { kana ->
+            val glyph = kana.glyph(script)
+            val mine = byGlyph[glyph].orEmpty()
+            val level = if (mine.all { it.introducedAt == null }) {
+                KanaLevel.FRESH
+            } else {
+                levelOf(mine.minOf { if (it.introducedAt == null) 0.0 else it.stability })
+            }
+            KanaCell(glyph, level)
+        }
+    }.toMap()
+
     val dueNext7 = IntArray(7).also { buckets ->
         cards.filter { it.introducedAt != null }.forEach {
             val offset = ChronoUnit.DAYS.between(today, StudyDay.of(it.due, zone)).coerceAtLeast(0).toInt()
@@ -124,6 +153,7 @@ fun computeStats(
         byDirection = Direction.entries.associateWith { dir -> count(answers.filter { byCard[it.cardId]?.direction == dir }) },
         bySource = Source.entries.associateWith { src -> answers.count { it.source == src } },
         scripts = scripts,
+        kanaMap = kanaMap,
         dueNext7Days = dueNext7,
         trouble = trouble,
         confusions = confusions.sortedByDescending { it.count }.take(5),

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -37,6 +38,7 @@ import dev.pedro.kanatoll.KanaApp
 import dev.pedro.kanatoll.data.Direction
 import dev.pedro.kanatoll.data.Source
 import dev.pedro.kanatoll.domain.AccuracyCount
+import dev.pedro.kanatoll.domain.KanaLevel
 import dev.pedro.kanatoll.domain.StatsSummary
 import dev.pedro.kanatoll.data.Script
 import java.time.format.DateTimeFormatter
@@ -63,6 +65,7 @@ fun StatsScreen(onBack: () -> Unit) {
         item { Overview(s) }
         item { Last14Days(s) }
         item { Progress(s) }
+        item { KanaMapCard(s) }
         item { DueForecast(s) }
         item { ByDirection(s) }
         item { Trouble(s) }
@@ -137,6 +140,48 @@ private fun Last14Days(s: StatsSummary) {
         )
         Spacer(Modifier.height(8.dp))
         Legend(listOf("acertos" to scheme.primary, "erros" to scheme.tertiary))
+    }
+}
+
+@Composable
+private fun KanaMapCard(s: StatsSummary) {
+    val scheme = MaterialTheme.colorScheme
+    SoftCard {
+        Text("Mapa de kana", style = MaterialTheme.typography.titleMedium)
+        Hint("Cada kana pela estabilidade do seu cartão mais fraco (leitura ou produção), a mesma regra do portão.")
+        s.kanaMap.forEach { (script, cells) ->
+            Spacer(Modifier.height(12.dp))
+            Text(if (script == Script.HIRAGANA) "Hiragana" else "Katakana", style = MaterialTheme.typography.titleSmall)
+            Spacer(Modifier.height(6.dp))
+            cells.chunked(9).forEach { row ->
+                Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    row.forEach { cell ->
+                        val (bg, fg) = when (cell.level) {
+                            KanaLevel.FRESH -> scheme.outlineVariant to scheme.onSurfaceVariant
+                            KanaLevel.LEARNING -> scheme.secondary to scheme.onSecondary
+                            KanaLevel.STABLE -> scheme.primary.copy(alpha = 0.55f) to scheme.onSurface
+                            KanaLevel.SOLID -> scheme.primary to scheme.onPrimary
+                        }
+                        Box(
+                            Modifier.weight(1f).aspectRatio(1f).clip(RoundedCornerShape(8.dp)).background(bg),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(cell.glyph, fontFamily = KanaFont, fontSize = if (cell.glyph.length > 1) 12.sp else 17.sp, color = fg)
+                        }
+                    }
+                    repeat(9 - row.size) { Spacer(Modifier.weight(1f)) }
+                }
+            }
+        }
+        Spacer(Modifier.height(10.dp))
+        Legend(
+            listOf(
+                "novo" to scheme.outlineVariant,
+                "aprendendo" to scheme.secondary,
+                "estável (7 d+)" to scheme.primary.copy(alpha = 0.55f),
+                "sólido (30 d+)" to scheme.primary,
+            ),
+        )
     }
 }
 

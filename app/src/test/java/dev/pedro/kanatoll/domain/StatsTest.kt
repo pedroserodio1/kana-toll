@@ -67,6 +67,28 @@ class StatsTest {
         assertEquals(ScriptProgress(introducedKana = 2, totalKana = 3, fresh = 1, learning = 1, stable = 1, solid = 1), p)
     }
 
+    @Test fun `mapa de kana usa o cartao mais fraco de cada kana`() {
+        val cards = listOf(
+            card(1, "あ", Direction.KANA_TO_ROMAJI, stability = 10.0),
+            card(2, "あ", Direction.ROMAJI_TO_KANA, stability = 2.0), // o mais fraco puxa あ para "aprendendo"
+            card(3, "い", Direction.KANA_TO_ROMAJI, stability = 45.0),
+            card(4, "い", Direction.ROMAJI_TO_KANA, stability = 31.0),
+            card(5, "う", Direction.KANA_TO_ROMAJI, introduced = false),
+            card(6, "え", Direction.KANA_TO_ROMAJI, stability = 8.0),
+            card(7, "え", Direction.ROMAJI_TO_KANA, stability = 9.0),
+        )
+        val map = computeStats(cards, emptyList(), emptyList(), now, zone).kanaMap.getValue(Script.HIRAGANA)
+        assertEquals(107, map.size)
+        assertEquals(KanaTable.all.map { it.hira }, map.map { it.glyph })
+        fun level(g: String) = map.single { it.glyph == g }.level
+        assertEquals(KanaLevel.LEARNING, level("あ"))
+        assertEquals(KanaLevel.SOLID, level("い"))
+        assertEquals(KanaLevel.FRESH, level("う"))
+        assertEquals(KanaLevel.STABLE, level("え"))
+        assertEquals(KanaLevel.FRESH, level("お")) // sem cartão no banco
+        assertTrue(Script.KATAKANA !in computeStats(cards, emptyList(), emptyList(), now, zone).kanaMap)
+    }
+
     @Test fun `carga dos proximos 7 dias inclui atrasados em hoje`() {
         val cards = listOf(
             card(1, "あ", Direction.KANA_TO_ROMAJI, due = ms(8)),  // atrasado -> hoje
