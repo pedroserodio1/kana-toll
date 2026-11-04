@@ -145,3 +145,29 @@ A ordem segue o critério: primeiro o que dá valor, depois o barato, depois o a
 
 - KanjiVG (CC BY-SA 3.0), KANJIDIC2 (CC BY-SA 4.0), Tatoeba: atribuição numa tela "Sobre/Fontes".
 - Livros servem como roteiro de ordem, não como fonte de conteúdo.
+
+---
+
+## Mudanças durante a implementação (2026-11-04)
+
+Os cinco marcos do v1 (M1 a M5) estão implementados e compilam; 73 testes unitários passam. Desvios e adições em relação ao que está acima:
+
+**Desvios**
+- **Áudio do ritmo (M5):** `AudioTrack` em modo de baixa latência no lugar do Oboe. Com minSdk 34 os dois usam o mesmo caminho AAudio; o Oboe exigiria NDK, CMake e JNI sem ganho. Se a latência medida incomodar, troca-se só a classe `BeatClock`.
+- **Preferências e contadores:** em `SharedPreferences`, não em DataStore. Os pulos e pagamentos do Pedágio são dois contadores, sem tabela `TollSkip`; as sessões do Ritmo (últimas 20) e o recorde também ficam nas preferências, sem tabela `RhythmStat`. Motivo: evitar uma migração do Room, que guarda o histórico.
+- **FSRS:** modo de longo prazo (sem passos de aprendizado, sem fuzz), só Errei e Bom. Não portei a regra do ts-fsrs que força os 4 botões a terem intervalos crescentes. Estabilidade e dificuldade foram conferidas contra os vetores do ts-fsrs.
+- **Pedágio:** depois de "agora não", o mesmo app fica em paz por 2 minutos, porque cada tela do app gera um evento de janela.
+- **Backup automático do Android:** `allowBackup` ligado sem regras próprias; **não foi verificado** com APK de sideload.
+
+**Adições além do escopo original do v1**
+- Tela de **Estatísticas** (resumo, últimos 14 dias, progresso, **mapa de kana**, carga dos próximos 7 dias, acerto por tipo, onde você erra).
+- **Treino das confusões**, **estudar à frente** (10 cartões), **"foi erro de digitação"** (um erro a uma edição de uma resposta aceita, e que não é o rōmaji de outro kana, fica pendente até você decidir).
+- **Meta diária** e **resumo de fim de dia** (notificação às 21h).
+- **Backup automático semanal** em JSON numa pasta escolhida (guarda os 4 mais recentes).
+- Ícone do app e estilo visual "Enso + Matcha" (botões e cartões táteis, fontes Klee One e Zen Maru Gothic, claro e escuro).
+
+**Ainda pendente**
+- [ ] Rodar no aparelho os testes instrumentados do repositório (portão, 10 kana por dia, backup).
+- [ ] Teste de horas e de reboot do serviço de acessibilidade, sem reinstalar o app no meio.
+- [ ] Voz ja-JP do TTS e Auto Backup com sideload (itens da Fase 0).
+- [ ] Rodada de decisões para **palavras** e **kanji** (e o teclado-professor), todos pós-v1.
