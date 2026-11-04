@@ -1,7 +1,6 @@
 package dev.pedro.kanatoll.notif
 
 import android.content.Context
-import androidx.glance.appwidget.updateAll
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -12,7 +11,7 @@ import dev.pedro.kanatoll.KanaApp
 import dev.pedro.kanatoll.backup.AutoBackup
 import dev.pedro.kanatoll.domain.summaryText
 import dev.pedro.kanatoll.fsrs.StudyDay
-import dev.pedro.kanatoll.widget.KanaWidget
+import dev.pedro.kanatoll.widget.updateAllWidgets
 import java.time.LocalTime
 import java.util.concurrent.TimeUnit
 
@@ -24,7 +23,7 @@ import java.util.concurrent.TimeUnit
 class QuizWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         val container = (applicationContext as KanaApp).container
-        KanaWidget().updateAll(applicationContext) // o número de devidos muda com o passar do tempo
+        updateAllWidgets(applicationContext) // o número de devidos muda com o passar do tempo
         postSummaryIfDue(container)
         AutoBackup.runIfDue(container, applicationContext) // semanal, se houver pasta escolhida
 

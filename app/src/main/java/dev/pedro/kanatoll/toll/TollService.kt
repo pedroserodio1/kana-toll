@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
-import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -32,7 +31,7 @@ import dev.pedro.kanatoll.KanaApp
 import dev.pedro.kanatoll.data.Card
 import dev.pedro.kanatoll.ui.KanaTheme
 import dev.pedro.kanatoll.ui.TollScreen
-import dev.pedro.kanatoll.widget.KanaWidget
+import dev.pedro.kanatoll.widget.updateAllWidgets
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -168,7 +167,7 @@ class TollService : AccessibilityService() {
             TollLog.add("agora não: $pkg")
         }
         dismiss()
-        scope.launch { KanaWidget().updateAll(this@TollService) }
+        scope.launch { updateAllWidgets(this@TollService) }
     }
 
     private fun dismiss() {

@@ -2,7 +2,6 @@ package dev.pedro.kanatoll.ui
 
 import android.app.Application
 import android.os.SystemClock
-import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dev.pedro.kanatoll.KanaApp
@@ -17,7 +16,7 @@ import dev.pedro.kanatoll.domain.SessionQueue
 import dev.pedro.kanatoll.domain.buildOptions
 import dev.pedro.kanatoll.domain.isCorrect
 import dev.pedro.kanatoll.domain.isNearMiss
-import dev.pedro.kanatoll.widget.KanaWidget
+import dev.pedro.kanatoll.widget.updateAllWidgets
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -155,7 +154,7 @@ open class SessionViewModel(app: Application) : AndroidViewModel(app), SessionLi
         lastWrite = container.appScope.launch {
             previous?.join() // mantém a ordem das gravações
             repo.answer(q.card.id, ok, response.trim(), elapsed, Source.SESSION, q.retry).gateOpened?.let { gateOpened = it }
-            if (!q.retry) KanaWidget().updateAll(getApplication<Application>())
+            if (!q.retry) updateAllWidgets(getApplication<Application>())
         }
     }
 

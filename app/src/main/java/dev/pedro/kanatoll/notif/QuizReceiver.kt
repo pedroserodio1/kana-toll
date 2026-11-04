@@ -7,8 +7,7 @@ import androidx.core.app.RemoteInput
 import dev.pedro.kanatoll.KanaApp
 import dev.pedro.kanatoll.data.Source
 import dev.pedro.kanatoll.domain.isCorrect
-import dev.pedro.kanatoll.widget.KanaWidget
-import androidx.glance.appwidget.updateAll
+import dev.pedro.kanatoll.widget.updateAllWidgets
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,7 +29,7 @@ class QuizReceiver : BroadcastReceiver() {
                 val elapsed = (System.currentTimeMillis() - posted).coerceAtLeast(0L)
                 val result = container.reviews.answer(cardId, correct, text.trim(), elapsed, Source.NOTIFICATION)
                 QuizNotifier.postResult(app, card, text, correct, result.gateOpened)
-                KanaWidget().updateAll(app)
+                updateAllWidgets(app)
             } finally {
                 pending.finish()
             }

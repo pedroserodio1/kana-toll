@@ -16,6 +16,7 @@ import androidx.glance.appwidget.LinearProgressIndicator
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
+import androidx.glance.appwidget.updateAll
 import androidx.glance.background
 import androidx.glance.color.ColorProvider
 import androidx.glance.layout.Alignment
@@ -46,12 +47,20 @@ class KanaWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = KanaWidget()
 }
 
+/** Atualiza os widgets que mostram números (o de atalhos é estático). Chamado depois de cada resposta e a cada ~15 min. */
+suspend fun updateAllWidgets(context: Context) {
+    KanaWidget().updateAll(context)
+    KanaGoalWidget().updateAll(context)
+}
+
 // Mesmas cores do tema do app (direção F), claro e escuro.
-private val Bg = ColorProvider(day = Color(0xFFE9EDE6), night = Color(0xFF151A16))
-private val Ink = ColorProvider(day = Color(0xFF26302A), night = Color(0xFFE3EADF))
-private val Muted = ColorProvider(day = Color(0xFF4C5A4F), night = Color(0xFFB9C6BA))
-private val Accent = ColorProvider(day = Color(0xFF3A7A2A), night = Color(0xFF8FCB7B))
-private val Track = ColorProvider(day = Color(0xFFC9D3C2), night = Color(0xFF3A463B))
+internal val Bg = ColorProvider(day = Color(0xFFE9EDE6), night = Color(0xFF151A16))
+internal val Ink = ColorProvider(day = Color(0xFF26302A), night = Color(0xFFE3EADF))
+internal val Muted = ColorProvider(day = Color(0xFF4C5A4F), night = Color(0xFFB9C6BA))
+internal val Accent = ColorProvider(day = Color(0xFF3A7A2A), night = Color(0xFF8FCB7B))
+internal val OnAccent = ColorProvider(day = Color(0xFFFFFFFF), night = Color(0xFF10240B))
+internal val Track = ColorProvider(day = Color(0xFFC9D3C2), night = Color(0xFF3A463B))
+internal val CardFill = ColorProvider(day = Color(0xFFF8FAF4), night = Color(0xFF212922))
 
 @Composable
 private fun WidgetContent(s: HomeStats) {
