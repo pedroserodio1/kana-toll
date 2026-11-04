@@ -12,13 +12,33 @@ android {
 
     defaultConfig {
         applicationId = "dev.pedro.kanatoll"
-        // Provisório: trocar pela API do aparelho depois da Fase 0
-        // (adb shell getprop ro.build.version.sdk). Se for > 35, subir compileSdk/AGP junto.
+        // Android 14. O aparelho de uso é API 37 (docs/decisoes.md); subir o minSdk acima do compileSdk exigiria um AGP mais novo.
         minSdk = 34
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        // O pipeline de release passa a versão da tag (v1.2.3 -> -PversionName=1.2.3 -PversionCode=10203).
+        versionCode = (findProperty("versionCode") as String?)?.toInt() ?: 1
+        versionName = (findProperty("versionName") as String?) ?: "0.1.0-dev"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    // Assinatura da release por variáveis de ambiente (o GitHub Actions as preenche com segredos).
+    // Sem elas, `assembleRelease` gera um APK sem assinatura; para uso local, `assembleDebug` basta.
+    val keystorePath = System.getenv("KEYSTORE_FILE")
+    if (keystorePath != null) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(keystorePath)
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            if (keystorePath != null) signingConfig = signingConfigs.getByName("release")
+        }
     }
 
     compileOptions {
