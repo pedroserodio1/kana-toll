@@ -41,9 +41,21 @@ O centro é o **FSRS** com um **portão por domínio**: o katakana só libera qu
 3. Abra o APK no celular e permita a instalação de fontes desconhecidas, se o Android pedir.
 4. Requer **Android 14 ou superior**.
 
-Permissões, todas opcionais e pedidas dentro do app:
+### Ligar o Pedágio
+
+O Pedágio usa um serviço de acessibilidade, e o Android (13 ou superior) **bloqueia esse tipo de serviço em apps instalados por APK**. Para ligar:
+
+1. Em *Configurações → Acessibilidade → Apps instalados → Kana*, tente ligar o serviço. O app também tem um botão **Acessibilidade** em *Configurações → Configurar o Pedágio* que abre essa tela. Se aparecer o aviso de **configuração restrita**, siga o passo 2.
+2. Libere as configurações restritas: *Configurações do Android → Apps → Kana → ⋮ (canto superior direito) → **Permitir configurações restritas***, e confirme com PIN ou digital. **Essa opção só aparece depois de você ter tentado ligar o serviço uma vez** (passo 1); se o ⋮ não mostrar nada, tente ligar de novo e volte.
+3. Volte à acessibilidade e ligue o Kana.
+
+Em alguns fabricantes os nomes dos menus mudam um pouco. Depois de instalar ou atualizar, **religue o serviço**: o Android o desliga quando o app é substituído.
+
+### Permissões
+
+Todas opcionais e pedidas dentro do app:
 - **Notificações:** quiz e resumo do dia.
-- **Acessibilidade:** só para o Pedágio. O serviço escuta apenas a troca de janela (qual app abriu) e **não lê o conteúdo das telas**. Em aparelhos que bloqueiam serviços de apps instalados por fora, libere em *Informações do app → ⋮ → Permitir configurações restritas*.
+- **Acessibilidade:** só para o Pedágio (veja *Ligar o Pedágio*, acima). O serviço escuta apenas a troca de janela (qual app abriu) e **não lê o conteúdo das telas**.
 - **Isenção de bateria:** ajuda o quiz e os widgets a rodar em segundo plano. Na One UI, adicione também o app em *Bateria → Limites de uso em segundo plano → Apps que nunca suspendem*.
 
 > Reinstalar o app desliga o serviço de acessibilidade; religue em *Configurações → Pedágio*.
