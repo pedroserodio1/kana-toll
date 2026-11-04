@@ -69,5 +69,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: kana-toll-${{ github.ref_name }}.apk
+          # O texto de instalação (.github/release-notes.md) vem primeiro; abaixo dele, a lista de mudanças
+          # gerada pelo GitHub a partir dos commits desde a tag anterior.
+          body_path: .github/release-notes.md
           generate_release_notes: true
           prerelease: ${{ contains(github.ref_name, '-') }}
