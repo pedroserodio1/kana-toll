@@ -10,6 +10,7 @@ import java.time.Clock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
 
 /** DI manual. Clock injetável para simular dias nos testes (portão de 7 dias, virada às 04:00). */
 class AppContainer(context: Context, val clock: Clock = Clock.systemDefaultZone()) {
@@ -18,6 +19,8 @@ class AppContainer(context: Context, val clock: Clock = Clock.systemDefaultZone(
 
     val db: AppDatabase by lazy { AppDatabase.build(context) }
     val settings: Settings by lazy { Settings(context.applicationContext) }
+    /** Tema escolhido, observável: mudar em Configurações vale na hora, sem reiniciar a tela. */
+    val themeMode: MutableStateFlow<Int> by lazy { MutableStateFlow(settings.themeMode) }
     val reviews: ReviewRepository by lazy { ReviewRepository(db, settings, clock) }
     val backup: BackupManager by lazy { BackupManager(db, clock) }
     val speaker: Speaker by lazy { Speaker(context.applicationContext) }

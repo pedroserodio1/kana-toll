@@ -4,11 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +32,7 @@ import dev.pedro.kanatoll.ui.SettingsScreen
 import dev.pedro.kanatoll.ui.StatsScreen
 import dev.pedro.kanatoll.ui.TraceScreen
 import dev.pedro.kanatoll.ui.TollSettingsScreen
+import dev.pedro.kanatoll.ui.useDarkTheme
 
 private enum class Screen { HOME, SESSION, AHEAD, SETTINGS, ABOUT, TOLL, TRACE, RHYTHM, STATS, DRILL }
 
@@ -37,7 +41,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge() // o fundo vai até as bordas; o conteúdo respeita barras e teclado via safeDrawingPadding
         setContent {
-            KanaTheme {
+            val container = (application as KanaApp).container
+            val themeMode by container.themeMode.collectAsState()
+            val dark = useDarkTheme(themeMode)
+            // Ícones das barras do sistema legíveis no tema escolhido, que pode ser diferente do do aparelho.
+            SideEffect {
+                val transparent = android.graphics.Color.TRANSPARENT
+                val bars = if (dark) SystemBarStyle.dark(transparent) else SystemBarStyle.light(transparent, transparent)
+                enableEdgeToEdge(statusBarStyle = bars, navigationBarStyle = bars)
+            }
+            KanaTheme(themeMode) {
                 Surface(Modifier.fillMaxSize()) {
                     Box(Modifier.safeDrawingPadding()) {
                         var screen by rememberSaveable { mutableStateOf(Screen.HOME) }

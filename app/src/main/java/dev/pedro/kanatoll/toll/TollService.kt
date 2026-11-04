@@ -116,7 +116,7 @@ class TollService : AccessibilityService() {
         val controller = TollController(container, scope, cards, onFinished = { finish(pkg, paid = true) })
         val compose = ComposeView(this).apply {
             setContent {
-                KanaTheme {
+                KanaTheme(container.themeMode.value) {
                     Surface(Modifier.fillMaxSize()) {
                         Box(Modifier.systemBarsPadding()) { TollScreen(controller, label) { finish(pkg, paid = false) } }
                     }

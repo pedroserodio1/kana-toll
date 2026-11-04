@@ -82,10 +82,22 @@ private val AppShapes = Shapes(
     extraLarge = RoundedCornerShape(34.dp),
 )
 
+const val THEME_SYSTEM = 0
+const val THEME_LIGHT = 1
+const val THEME_DARK = 2
+
+/** Escuro ou claro conforme a escolha do usuário; no modo "sistema", conforme o aparelho. */
 @Composable
-fun KanaTheme(content: @Composable () -> Unit) {
+fun useDarkTheme(mode: Int): Boolean = when (mode) {
+    THEME_LIGHT -> false
+    THEME_DARK -> true
+    else -> isSystemInDarkTheme()
+}
+
+@Composable
+fun KanaTheme(mode: Int = THEME_SYSTEM, content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = if (isSystemInDarkTheme()) Dark else Light,
+        colorScheme = if (useDarkTheme(mode)) Dark else Light,
         typography = AppTypography,
         shapes = AppShapes,
         content = content,

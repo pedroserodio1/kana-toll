@@ -68,6 +68,7 @@ fun SettingsScreen(onBack: () -> Unit, onToll: () -> Unit, onAbout: () -> Unit) 
         }
     }
 
+    var themeMode by remember { mutableIntStateOf(settings.themeMode) }
     var autoBackupInfo by remember { mutableStateOf(AutoBackup.describe(context, settings)) }
     val folderLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         if (uri != null) {
@@ -145,6 +146,22 @@ fun SettingsScreen(onBack: () -> Unit, onToll: () -> Unit, onAbout: () -> Unit) 
                 Hint("Antes de abrir os apps que você escolher, algumas revisões de kana. Precisa do serviço de acessibilidade ligado.")
                 Spacer(Modifier.height(10.dp))
                 ActionButton("Configurar o Pedágio", onToll, Modifier.fillMaxWidth())
+            }
+            Spacer(Modifier.height(16.dp))
+            SoftCard {
+                Text("Aparência", style = MaterialTheme.typography.titleMedium)
+                Hint("Acompanha o tema do aparelho, ou fica sempre claro ou sempre escuro.")
+                Spacer(Modifier.height(10.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(THEME_SYSTEM to "Sistema", THEME_LIGHT to "Claro", THEME_DARK to "Escuro").forEach { (mode, label) ->
+                        ActionButton(
+                            label,
+                            { themeMode = mode; settings.themeMode = mode; container.themeMode.value = mode },
+                            Modifier.weight(1f),
+                            filled = themeMode == mode,
+                        )
+                    }
+                }
             }
             Spacer(Modifier.height(16.dp))
             SoftCard {

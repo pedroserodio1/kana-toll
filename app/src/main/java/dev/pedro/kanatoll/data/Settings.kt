@@ -63,6 +63,11 @@ class Settings(context: Context, name: String = "settings") {
         get() = prefs.getInt("toll_skips", 0)
         set(v) = prefs.edit().putInt("toll_skips", v).apply()
 
+    /** Tema: 0 acompanha o sistema, 1 sempre claro, 2 sempre escuro. */
+    var themeMode: Int
+        get() = prefs.getInt("theme_mode", 0)
+        set(v) = prefs.edit().putInt("theme_mode", v.coerceIn(0, 2)).apply()
+
     /** Meta de respostas por dia de estudo. 0 = sem meta. */
     var dailyGoal: Int
         get() = prefs.getInt("daily_goal", 0)
