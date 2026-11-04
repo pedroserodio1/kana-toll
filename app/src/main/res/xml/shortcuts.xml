@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Menu ao apertar e segurar o ícone do app. O extra "screen" é lido pela MainActivity (ver Destinations). -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="study"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_study"
+        android:shortcutShortLabel="@string/shortcut_study_short"
+        android:shortcutLongLabel="@string/shortcut_study_long">
+        <intent
+            android:action="dev.pedro.kanatoll.OPEN_session"
+            android:targetClass="dev.pedro.kanatoll.MainActivity"
+            android:targetPackage="dev.pedro.kanatoll">
+            <extra android:name="screen" android:value="session" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:shortcutId="trace"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_trace"
+        android:shortcutShortLabel="@string/shortcut_trace_short"
+        android:shortcutLongLabel="@string/shortcut_trace_long">
+        <intent
+            android:action="dev.pedro.kanatoll.OPEN_trace"
+            android:targetClass="dev.pedro.kanatoll.MainActivity"
+            android:targetPackage="dev.pedro.kanatoll">
+            <extra android:name="screen" android:value="trace" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:shortcutId="rhythm"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_rhythm"
+        android:shortcutShortLabel="@string/shortcut_rhythm_short"
+        android:shortcutLongLabel="@string/shortcut_rhythm_long">
+        <intent
+            android:action="dev.pedro.kanatoll.OPEN_rhythm"
+            android:targetClass="dev.pedro.kanatoll.MainActivity"
+            android:targetPackage="dev.pedro.kanatoll">
+            <extra android:name="screen" android:value="rhythm" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:shortcutId="stats"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_stats"
+        android:shortcutShortLabel="@string/shortcut_stats_short"
+        android:shortcutLongLabel="@string/shortcut_stats_long">
+        <intent
+            android:action="dev.pedro.kanatoll.OPEN_stats"
+            android:targetClass="dev.pedro.kanatoll.MainActivity"
+            android:targetPackage="dev.pedro.kanatoll">
+            <extra android:name="screen" android:value="stats" />
+        </intent>
+    </shortcut>
+</shortcuts>

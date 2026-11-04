@@ -3,4 +3,15 @@
     <string name="app_name">Kana</string>
     <string name="accessibility_description">Detecta quando você abre um app da sua lista e mostra algumas revisões de kana antes. Não lê o conteúdo das telas.</string>
     <string name="widget_description">Quantos cartões estão para revisar e o progresso do portão.</string>
+    <string name="widget_goal_description">Respostas de hoje contra a meta diária, e os dias seguidos de estudo.</string>
+    <string name="widget_shortcuts_description">Botões para abrir direto o estudo, o traçado, o ritmo e as estatísticas.</string>
+
+    <string name="shortcut_study_short">Estudar</string>
+    <string name="shortcut_study_long">Estudar agora</string>
+    <string name="shortcut_trace_short">Traçado</string>
+    <string name="shortcut_trace_long">Treinar o traçado</string>
+    <string name="shortcut_rhythm_short">Ritmo</string>
+    <string name="shortcut_rhythm_long">Ritmo de kana</string>
+    <string name="shortcut_stats_short">Estatísticas</string>
+    <string name="shortcut_stats_long">Ver as estatísticas</string>
 </resources>

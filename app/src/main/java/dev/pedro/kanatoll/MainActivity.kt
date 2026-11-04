@@ -1,5 +1,6 @@
 package dev.pedro.kanatoll
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,8 +39,19 @@ import dev.pedro.kanatoll.ui.useDarkTheme
 private enum class Screen { HOME, SESSION, AHEAD, SETTINGS, ABOUT, TOLL, TRACE, RHYTHM, STATS, DRILL }
 
 class MainActivity : ComponentActivity() {
+    /** Destino pedido por um atalho do ícone ou por um widget (ver [Destinations]); a tela consome e zera. */
+    private var requested by mutableStateOf<String?>(null)
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        requested = intent.getStringExtra(Destinations.EXTRA_SCREEN)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Só na criação de verdade: ao girar a tela o mesmo intent voltaria a navegar.
+        if (savedInstanceState == null) requested = intent?.getStringExtra(Destinations.EXTRA_SCREEN)
         enableEdgeToEdge() // o fundo vai até as bordas; o conteúdo respeita barras e teclado via safeDrawingPadding
         setContent {
             val container = (application as KanaApp).container
@@ -60,6 +73,17 @@ class MainActivity : ComponentActivity() {
                         var rhythmKey by rememberSaveable { mutableIntStateOf(0) }
                         var drillKey by rememberSaveable { mutableIntStateOf(0) }
                         val more = { aheadKey++; screen = Screen.AHEAD }
+                        // Atalho do ícone ou widget: abre direto na tela pedida.
+                        LaunchedEffect(requested) {
+                            when (requested) {
+                                Destinations.SESSION -> { sessionKey++; screen = Screen.SESSION }
+                                Destinations.TRACE -> screen = Screen.TRACE
+                                Destinations.RHYTHM -> { rhythmKey++; screen = Screen.RHYTHM }
+                                Destinations.STATS -> screen = Screen.STATS
+                                else -> return@LaunchedEffect
+                            }
+                            requested = null
+                        }
                         val home = { screen = Screen.HOME }
                         val settings = { screen = Screen.SETTINGS }
                         val stats = { screen = Screen.STATS }
