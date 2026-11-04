@@ -1,0 +1,4 @@
+# Finais de linha: LF no repositório e na cópia de trabalho (o Windows não converte),
+# menos nos scripts .bat, que precisam de CRLF.
+* text=auto eol=lf
+*.bat text eol=crlf
