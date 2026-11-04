@@ -20,6 +20,7 @@ import dev.pedro.kanatoll.ui.AboutScreen
 import dev.pedro.kanatoll.ui.HomeScreen
 import dev.pedro.kanatoll.ui.KanaTheme
 import dev.pedro.kanatoll.ui.AheadSessionViewModel
+import dev.pedro.kanatoll.ui.DrillViewModel
 import dev.pedro.kanatoll.ui.SessionScreen
 import dev.pedro.kanatoll.ui.SessionViewModel
 import dev.pedro.kanatoll.rhythm.RhythmViewModel
@@ -29,7 +30,7 @@ import dev.pedro.kanatoll.ui.StatsScreen
 import dev.pedro.kanatoll.ui.TraceScreen
 import dev.pedro.kanatoll.ui.TollSettingsScreen
 
-private enum class Screen { HOME, SESSION, AHEAD, SETTINGS, ABOUT, TOLL, TRACE, RHYTHM, STATS }
+private enum class Screen { HOME, SESSION, AHEAD, SETTINGS, ABOUT, TOLL, TRACE, RHYTHM, STATS, DRILL }
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,11 +45,22 @@ class MainActivity : ComponentActivity() {
                         var sessionKey by rememberSaveable { mutableIntStateOf(0) }
                         var aheadKey by rememberSaveable { mutableIntStateOf(0) }
                         var rhythmKey by rememberSaveable { mutableIntStateOf(0) }
+                        var drillKey by rememberSaveable { mutableIntStateOf(0) }
                         val more = { aheadKey++; screen = Screen.AHEAD }
                         val home = { screen = Screen.HOME }
                         val settings = { screen = Screen.SETTINGS }
-                        // O Pedágio e o Sobre vivem dentro de Configurações: Voltar sai deles para lá.
-                        if (screen != Screen.HOME) BackHandler(onBack = if (screen == Screen.TOLL || screen == Screen.ABOUT) settings else home)
+                        val stats = { screen = Screen.STATS }
+                        // O Pedágio e o Sobre vivem dentro de Configurações, e o treino das confusões dentro das
+                        // Estatísticas: Voltar sai deles para lá.
+                        if (screen != Screen.HOME) {
+                            BackHandler(
+                                onBack = when (screen) {
+                                    Screen.TOLL, Screen.ABOUT -> settings
+                                    Screen.DRILL -> stats
+                                    else -> home
+                                },
+                            )
+                        }
                         when (screen) {
                             Screen.HOME -> HomeScreen(
                                 onStudy = { sessionKey++; screen = Screen.SESSION },
@@ -62,7 +74,15 @@ class MainActivity : ComponentActivity() {
                             Screen.AHEAD -> SessionScreen(viewModel<AheadSessionViewModel>(key = "ahead$aheadKey"), home, onMore = more)
                             Screen.SETTINGS -> SettingsScreen(home, onToll = { screen = Screen.TOLL }, onAbout = { screen = Screen.ABOUT })
                             Screen.ABOUT -> AboutScreen(settings)
-                            Screen.STATS -> StatsScreen(home)
+                            Screen.STATS -> StatsScreen(home, onDrill = { drillKey++; screen = Screen.DRILL })
+                            Screen.DRILL -> SessionScreen(
+                                viewModel<DrillViewModel>(key = "drill$drillKey"),
+                                onExit = stats,
+                                onMore = { drillKey++ },
+                                moreLabel = "Treinar de novo",
+                                emptyText = "Sem trocas registradas ainda.",
+                                emptyHint = "Elas aparecem conforme você erra nas perguntas de escolha e de digitação.",
+                            )
                             Screen.TOLL -> TollSettingsScreen(settings)
                             Screen.TRACE -> TraceScreen(home)
                             Screen.RHYTHM -> RhythmScreen(viewModel<RhythmViewModel>(key = "rhythm$rhythmKey"), home)

@@ -47,7 +47,7 @@ import kotlin.math.roundToInt
 private fun pct(a: AccuracyCount): String = if (a.total == 0) "—" else "${(a.rate * 100).roundToInt()}%"
 
 @Composable
-fun StatsScreen(onBack: () -> Unit) {
+fun StatsScreen(onBack: () -> Unit, onDrill: () -> Unit) {
     val container = (LocalContext.current.applicationContext as KanaApp).container
     val stats by produceState<StatsSummary?>(null) { value = container.reviews.stats() }
     val settings = container.settings
@@ -68,7 +68,7 @@ fun StatsScreen(onBack: () -> Unit) {
         item { KanaMapCard(s) }
         item { DueForecast(s) }
         item { ByDirection(s) }
-        item { Trouble(s) }
+        item { Trouble(s, onDrill) }
         item {
             SoftCard {
                 Text("Outros modos", style = MaterialTheme.typography.titleMedium)
@@ -256,7 +256,7 @@ private fun ByDirection(s: StatsSummary) {
 }
 
 @Composable
-private fun Trouble(s: StatsSummary) {
+private fun Trouble(s: StatsSummary, onDrill: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
     SoftCard {
         Text("Onde você erra", style = MaterialTheme.typography.titleMedium)
@@ -280,6 +280,9 @@ private fun Trouble(s: StatsSummary) {
             Text("Trocas mais comuns", style = MaterialTheme.typography.titleSmall)
             Spacer(Modifier.height(4.dp))
             s.confusions.forEach { Line("${it.expected} respondido como ${it.given}", "${it.count}×") }
+            Spacer(Modifier.height(12.dp))
+            ActionButton("Treinar essas trocas", onDrill, Modifier.fillMaxWidth())
+            Spacer(Modifier.height(4.dp))
         }
         Hint("Os kana de maior taxa de erro vão aparecer mais como opções parecidas nas perguntas de escolha.")
     }

@@ -49,7 +49,14 @@ import dev.pedro.kanatoll.domain.wrongKana
 import kotlin.math.roundToInt
 
 @Composable
-fun SessionScreen(vm: SessionLike, onExit: () -> Unit, onMore: (() -> Unit)? = null) {
+fun SessionScreen(
+    vm: SessionLike,
+    onExit: () -> Unit,
+    onMore: (() -> Unit)? = null,
+    moreLabel: String = "Estudar mais 10 cartões",
+    emptyText: String = "Nada para revisar agora.",
+    emptyHint: String = "Volte mais tarde.",
+) {
     val ui by vm.ui.collectAsState()
     val progress by vm.progress.collectAsState()
     // Sair da tela (por qualquer caminho) grava a resposta que ficou pendente.
@@ -59,10 +66,10 @@ fun SessionScreen(vm: SessionLike, onExit: () -> Unit, onMore: (() -> Unit)? = n
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when (val s = ui) {
                 SessionUi.Loading -> Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
-                SessionUi.Empty -> EmptyView(onExit, onMore)
+                SessionUi.Empty -> EmptyView(onExit, onMore, moreLabel, emptyText, emptyHint)
                 is SessionUi.Asking -> AskingView(s, vm::submit, vm::speak)
                 is SessionUi.Feedback -> FeedbackView(s, vm::next, vm::override)
-                is SessionUi.Done -> DoneView(s, onExit, onMore)
+                is SessionUi.Done -> DoneView(s, onExit, onMore, moreLabel)
             }
         }
     }
@@ -233,15 +240,15 @@ internal fun FeedbackView(s: SessionUi.Feedback, onNext: () -> Unit, onOverride:
 }
 
 @Composable
-private fun EmptyView(onExit: () -> Unit, onMore: (() -> Unit)?) {
+private fun EmptyView(onExit: () -> Unit, onMore: (() -> Unit)?, moreLabel: String, text: String, hint: String) {
     Column(Modifier.fillMaxSize().padding(horizontal = 26.dp, vertical = 14.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(Modifier.weight(1f))
-        Text("Nada para revisar agora.", style = MaterialTheme.typography.titleLarge)
+        Text(text, style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
         Spacer(Modifier.height(8.dp))
-        Text("Volte mais tarde.", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(hint, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
         Spacer(Modifier.weight(1f))
         onMore?.let {
-            ActionButton("Estudar à frente (10 cartões)", it, Modifier.fillMaxWidth(), filled = false)
+            ActionButton(moreLabel, it, Modifier.fillMaxWidth(), filled = false)
             Spacer(Modifier.height(10.dp))
         }
         PrimaryButton("Voltar", onExit)
@@ -249,7 +256,7 @@ private fun EmptyView(onExit: () -> Unit, onMore: (() -> Unit)?) {
 }
 
 @Composable
-private fun DoneView(s: SessionUi.Done, onExit: () -> Unit, onMore: (() -> Unit)?) {
+private fun DoneView(s: SessionUi.Done, onExit: () -> Unit, onMore: (() -> Unit)?, moreLabel: String) {
     val percent = if (s.total == 0) 0 else (100f * s.correct / s.total).roundToInt()
     Column(Modifier.fillMaxSize().padding(horizontal = 26.dp, vertical = 14.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(Modifier.weight(1f))
@@ -272,7 +279,7 @@ private fun DoneView(s: SessionUi.Done, onExit: () -> Unit, onMore: (() -> Unit)
         }
         Spacer(Modifier.weight(1f))
         onMore?.let {
-            ActionButton("Estudar mais 10 cartões", it, Modifier.fillMaxWidth(), filled = false)
+            ActionButton(moreLabel, it, Modifier.fillMaxWidth(), filled = false)
             Spacer(Modifier.height(10.dp))
         }
         PrimaryButton("Voltar", onExit)
