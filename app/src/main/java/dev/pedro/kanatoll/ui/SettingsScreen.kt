@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import dev.pedro.kanatoll.KanaApp
+import dev.pedro.kanatoll.backup.AutoBackup
 import dev.pedro.kanatoll.notif.QuizNotifier
 import java.time.LocalDate
 import kotlin.math.roundToInt
@@ -64,6 +65,22 @@ fun SettingsScreen(onBack: () -> Unit, onToll: () -> Unit, onAbout: () -> Unit) 
             quizOn = true
         } else {
             status = "Sem permissão de notificações: o quiz fica desligado."
+        }
+    }
+
+    var autoBackupInfo by remember { mutableStateOf(AutoBackup.describe(context, settings)) }
+    val folderLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri != null) {
+            // Permissão persistente: o worker grava na pasta mesmo com o app fechado.
+            context.contentResolver.takePersistableUriPermission(
+                uri, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+            )
+            settings.autoBackupFolder = uri.toString()
+            autoBackupInfo = AutoBackup.describe(context, settings)
+            scope.launch {
+                status = AutoBackup.runNow(container, context) // já faz o primeiro, para testar a pasta
+                autoBackupInfo = AutoBackup.describe(context, settings)
+            }
         }
     }
 
@@ -260,6 +277,31 @@ fun SettingsScreen(onBack: () -> Unit, onToll: () -> Unit, onAbout: () -> Unit) 
                     ActionButton("Exportar", { exportLauncher.launch("kana-backup-${LocalDate.now()}.json") }, Modifier.weight(1f))
                     ActionButton("Importar", { importLauncher.launch(arrayOf("*/*")) }, Modifier.weight(1f), filled = false)
                 }
+                Spacer(Modifier.height(16.dp))
+                Text("Backup automático (semanal)", style = MaterialTheme.typography.titleSmall)
+                Hint(autoBackupInfo)
+                Spacer(Modifier.height(8.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    ActionButton("Escolher pasta", { folderLauncher.launch(null) }, Modifier.weight(1f))
+                    ActionButton(
+                        "Fazer agora",
+                        {
+                            scope.launch {
+                                status = AutoBackup.runNow(container, context)
+                                autoBackupInfo = AutoBackup.describe(context, settings)
+                            }
+                        },
+                        Modifier.weight(1f),
+                        enabled = settings.autoBackupFolder.isNotEmpty(),
+                        filled = false,
+                    )
+                }
+                if (settings.autoBackupFolder.isNotEmpty()) {
+                    TextButton(onClick = { settings.autoBackupFolder = ""; autoBackupInfo = AutoBackup.describe(context, settings) }) {
+                        Text("Desligar o backup automático")
+                    }
+                }
+                Hint("Dica: escolha uma pasta que o Google Drive sincronize, e o histórico fica fora do celular. Guarda os 4 mais recentes.")
                 status?.let {
                     Spacer(Modifier.height(12.dp))
                     Text(it, style = MaterialTheme.typography.bodyMedium)

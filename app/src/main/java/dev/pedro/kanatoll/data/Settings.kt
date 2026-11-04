@@ -78,6 +78,16 @@ class Settings(context: Context, name: String = "settings") {
         get() = prefs.getString("last_summary_day", "").orEmpty()
         set(v) = prefs.edit().putString("last_summary_day", v).apply()
 
+    /** Pasta (URI de árvore do seletor de arquivos) do backup automático semanal. Vazio = desligado. */
+    var autoBackupFolder: String
+        get() = prefs.getString("auto_backup_folder", "").orEmpty()
+        set(v) = prefs.edit().putString("auto_backup_folder", v).apply()
+
+    /** Quando saiu o último backup automático (epoch ms). */
+    var lastAutoBackup: Long
+        get() = prefs.getLong("last_auto_backup", 0L)
+        set(v) = prefs.edit().putLong("last_auto_backup", v).apply()
+
     /** Maior BPM já alcançado no modo Ritmo. */
     var rhythmBestBpm: Int
         get() = prefs.getInt("rhythm_best", 0)

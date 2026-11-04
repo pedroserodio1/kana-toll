@@ -9,6 +9,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import dev.pedro.kanatoll.AppContainer
 import dev.pedro.kanatoll.KanaApp
+import dev.pedro.kanatoll.backup.AutoBackup
 import dev.pedro.kanatoll.domain.summaryText
 import dev.pedro.kanatoll.fsrs.StudyDay
 import dev.pedro.kanatoll.widget.KanaWidget
@@ -25,6 +26,7 @@ class QuizWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
         val container = (applicationContext as KanaApp).container
         KanaWidget().updateAll(applicationContext) // o número de devidos muda com o passar do tempo
         postSummaryIfDue(container)
+        AutoBackup.runIfDue(container, applicationContext) // semanal, se houver pasta escolhida
 
         val settings = container.settings
         if (!settings.quizEnabled || !QuizNotifier.canNotify(applicationContext)) return Result.success()
