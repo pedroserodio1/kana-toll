@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Só a janela antes de o Compose desenhar; as cores do app estão em ui/Theme.kt. -->
+    <style name="Theme.KanaToll" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">#E9EDE6</item>
+    </style>
+</resources>

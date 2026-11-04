@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kana</string>
+    <string name="accessibility_description">Detecta quando você abre um app da sua lista e mostra algumas revisões de kana antes. Não lê o conteúdo das telas.</string>
+    <string name="widget_description">Quantos cartões estão para revisar e o progresso do portão.</string>
+</resources>
