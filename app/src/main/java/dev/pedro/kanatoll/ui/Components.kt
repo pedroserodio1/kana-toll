@@ -33,6 +33,32 @@ fun PrimaryButton(
     ) { Text(text, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold) }
 }
 
+/**
+ * Botão tátil de ações secundárias (dentro de cartões): [filled] usa o musgo; sem ele fica só de contorno.
+ * A largura vem do chamador (`fillMaxWidth()` ou `weight(1f)` numa linha).
+ */
+@Composable
+fun ActionButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    filled: Boolean = true,
+) {
+    val scheme = MaterialTheme.colorScheme
+    TactileButton(
+        onClick = onClick,
+        modifier = modifier.height(52.dp),
+        fill = if (filled) scheme.primary else scheme.surface,
+        edge = if (filled) scheme.primary.darker() else scheme.outlineVariant,
+        contentColor = if (filled) scheme.onPrimary else scheme.onSurface,
+        radius = 26.dp,
+        border = if (filled) 0.dp else 3.dp,
+        lift = 4.dp,
+        enabled = enabled,
+    ) { Text(text, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold) }
+}
+
 /** Cartão tátil. Em cartões coloridos a borda é a mesma cor, mais escura; no padrão é o contorno de pedra. */
 @Composable
 fun SoftCard(

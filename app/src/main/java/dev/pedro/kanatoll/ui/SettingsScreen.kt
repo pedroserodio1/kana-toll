@@ -7,6 +7,7 @@ import android.os.PowerManager
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,9 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -117,7 +116,7 @@ fun SettingsScreen(onBack: () -> Unit, onToll: () -> Unit, onAbout: () -> Unit) 
                 Text("Pedágio", style = MaterialTheme.typography.titleMedium)
                 Hint("Antes de abrir os apps que você escolher, algumas revisões de kana. Precisa do serviço de acessibilidade ligado.")
                 Spacer(Modifier.height(10.dp))
-                Button(onClick = onToll) { Text("Configurar o Pedágio") }
+                ActionButton("Configurar o Pedágio", onToll, Modifier.fillMaxWidth())
             }
             Spacer(Modifier.height(16.dp))
             SoftCard {
@@ -180,9 +179,12 @@ fun SettingsScreen(onBack: () -> Unit, onToll: () -> Unit, onAbout: () -> Unit) 
                     steps = 22,
                 )
                 Spacer(Modifier.height(6.dp))
-                OutlinedButton(onClick = { scope.launch { status = QuizNotifier.postTest(context) } }) {
-                    Text("Enviar notificação de teste")
-                }
+                ActionButton(
+                    "Enviar notificação de teste",
+                    { scope.launch { status = QuizNotifier.postTest(context) } },
+                    Modifier.fillMaxWidth(),
+                    filled = false,
+                )
             }
             Spacer(Modifier.height(16.dp))
             SoftCard {
@@ -193,14 +195,17 @@ fun SettingsScreen(onBack: () -> Unit, onToll: () -> Unit, onAbout: () -> Unit) 
                     else "O Android pode atrasar o quiz e o widget para economizar bateria.",
                 )
                 Spacer(Modifier.height(8.dp))
-                OutlinedButton(
-                    enabled = !ignoringBattery,
-                    onClick = {
+                ActionButton(
+                    "Pedir isenção de bateria",
+                    {
                         context.startActivity(
                             Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:${context.packageName}")),
                         )
                     },
-                ) { Text("Pedir isenção de bateria") }
+                    Modifier.fillMaxWidth(),
+                    enabled = !ignoringBattery,
+                    filled = false,
+                )
                 Spacer(Modifier.height(8.dp))
                 Hint("Na One UI, adicione também o Kana em Configurações → Bateria → Limites de uso em segundo plano → Apps que nunca suspendem.")
             }
@@ -209,10 +214,9 @@ fun SettingsScreen(onBack: () -> Unit, onToll: () -> Unit, onAbout: () -> Unit) 
                 Text("Backup", style = MaterialTheme.typography.titleMedium)
                 Hint("O histórico do FSRS é o que você não pode perder.")
                 Spacer(Modifier.height(12.dp))
-                Row {
-                    Button(onClick = { exportLauncher.launch("kana-backup-${LocalDate.now()}.json") }) { Text("Exportar") }
-                    Spacer(Modifier.width(8.dp))
-                    OutlinedButton(onClick = { importLauncher.launch(arrayOf("*/*")) }) { Text("Importar") }
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    ActionButton("Exportar", { exportLauncher.launch("kana-backup-${LocalDate.now()}.json") }, Modifier.weight(1f))
+                    ActionButton("Importar", { importLauncher.launch(arrayOf("*/*")) }, Modifier.weight(1f), filled = false)
                 }
                 status?.let {
                     Spacer(Modifier.height(12.dp))

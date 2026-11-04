@@ -17,9 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -95,12 +93,13 @@ fun TollSettingsScreen(onBack: () -> Unit) {
                 )
                 Hint("A One UI pode desligar o serviço sozinha, e reinstalar o app também desliga. Volte aqui se o Pedágio parar de aparecer.")
                 Spacer(Modifier.height(10.dp))
-                Row {
-                    Button(onClick = {
-                        context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                    }) { Text("Acessibilidade") }
-                    Spacer(Modifier.width(8.dp))
-                    OutlinedButton(onClick = { tick++ }) { Text("Atualizar") }
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    ActionButton(
+                        "Acessibilidade",
+                        { context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) },
+                        Modifier.weight(1f),
+                    )
+                    ActionButton("Atualizar", { tick++ }, Modifier.weight(1f), filled = false)
                 }
             }
         }
