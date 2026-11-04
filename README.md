@@ -37,8 +37,9 @@ O centro é o **FSRS** com um **portão por domínio**: o katakana só libera qu
 ## Instalar
 
 1. Em [Releases](https://github.com/pedroserodio1/kana-toll/releases), baixe o `kana-toll-vX.Y.Z.apk` da versão mais recente.
-2. Abra o APK no celular e permita a instalação de fontes desconhecidas, se o Android pedir.
-3. Requer **Android 14 ou superior**.
+2. **Desative o Google Play Protect antes de instalar.** Ele costuma bloquear APKs de fora da Play Store, e este app usa um serviço de acessibilidade (o Pedágio), o que o deixa ainda mais desconfiado. Na Play Store: toque na sua foto de perfil → **Play Protect** → engrenagem ⚙️ → desligue **Analisar apps com o Play Protect**. Depois de instalar e ligar o serviço, você pode religá-lo; se ele voltar a avisar sobre o app, escolha manter.
+3. Abra o APK no celular e permita a instalação de fontes desconhecidas, se o Android pedir.
+4. Requer **Android 14 ou superior**.
 
 Permissões, todas opcionais e pedidas dentro do app:
 - **Notificações:** quiz e resumo do dia.
