@@ -1,7 +1,6 @@
 # Decisões: app de japonês (Pedágio de kana)
 
 Registro das decisões de produto e técnica tomadas antes de escrever código.
-Base: [pesquisa prévia (nov/2026)](https://claude.ai/artifact/UVotqwTLyGFyPYQww7MZwZ).
 
 Status: 🟢 decidido · 🟡 proposta, aguardando confirmação · ⚪ aberto
 
