@@ -67,6 +67,17 @@ fun SettingsScreen(onBack: () -> Unit, onToll: () -> Unit, onAbout: () -> Unit) 
         }
     }
 
+    var goal by remember { mutableIntStateOf(settings.dailyGoal) }
+    var summaryOn by remember { mutableStateOf(settings.summaryEnabled && QuizNotifier.canNotify(context)) }
+    val summaryPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) {
+            settings.summaryEnabled = true
+            summaryOn = true
+        } else {
+            status = "Sem permissão de notificações: o resumo fica desligado."
+        }
+    }
+
     val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         if (uri != null) {
             scope.launch {
@@ -147,6 +158,37 @@ fun SettingsScreen(onBack: () -> Unit, onToll: () -> Unit, onAbout: () -> Unit) 
                     steps = 18,
                 )
                 Hint("Cada kana traz 3 cartões. Se a carga passar de 100 revisões por dia, baixe para 5.")
+            }
+            Spacer(Modifier.height(16.dp))
+            SoftCard {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text("Meta diária", Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        if (goal == 0) "sem meta" else "$goal respostas",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+                Slider(
+                    value = goal.toFloat(),
+                    onValueChange = { goal = (it / 5).roundToInt() * 5 },
+                    onValueChangeFinished = { settings.dailyGoal = goal },
+                    valueRange = 0f..100f,
+                    steps = 19,
+                )
+                Hint("Quantas respostas por dia de estudo (que vira às 4h). Aparece na tela Início.")
+                Spacer(Modifier.height(8.dp))
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text("Resumo do dia, às 21h", Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
+                    Switch(checked = summaryOn, onCheckedChange = { on ->
+                        when {
+                            !on -> { settings.summaryEnabled = false; summaryOn = false }
+                            QuizNotifier.canNotify(context) -> { settings.summaryEnabled = true; summaryOn = true }
+                            else -> summaryPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                    })
+                }
+                Hint("Uma notificação por dia com as respostas, o acerto e como está a meta.")
             }
             Spacer(Modifier.height(16.dp))
             SoftCard {

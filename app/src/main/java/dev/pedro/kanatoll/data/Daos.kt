@@ -92,6 +92,13 @@ interface ReviewLogDao {
     @Insert
     suspend fun insertAll(logs: List<ReviewLog>)
 
+    /** Respostas de primeira (sem re-perguntas) desde [since]: para a meta e o resumo do dia. */
+    @Query("SELECT COUNT(*) FROM review_log WHERE retry = 0 AND ts >= :since")
+    suspend fun answersSince(since: Long): Int
+
+    @Query("SELECT COUNT(*) FROM review_log WHERE retry = 0 AND correct = 1 AND ts >= :since")
+    suspend fun correctSince(since: Long): Int
+
     @Query("DELETE FROM review_log")
     suspend fun deleteAll()
 }

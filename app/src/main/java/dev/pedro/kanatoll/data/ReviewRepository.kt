@@ -3,6 +3,7 @@ package dev.pedro.kanatoll.data
 import androidx.room.withTransaction
 import dev.pedro.kanatoll.domain.GATE_STABILITY
 import dev.pedro.kanatoll.domain.KanaTable
+import dev.pedro.kanatoll.domain.AccuracyCount
 import dev.pedro.kanatoll.domain.StatsSummary
 import dev.pedro.kanatoll.domain.computeStats
 import dev.pedro.kanatoll.domain.applyAnswer
@@ -26,6 +27,9 @@ data class HomeStats(
     val hiragana: GateProgress,
     val hiraganaOpen: Boolean,
     val katakana: GateProgress?,
+    /** Respostas de primeira de hoje e a meta diária (0 = sem meta). */
+    val todayAnswers: Int,
+    val goal: Int,
 )
 
 /**
@@ -99,6 +103,12 @@ class ReviewRepository(
     /** Os próximos [n] cartões a vencer, para estudar à frente quando não há nada devido. */
     suspend fun aheadCards(n: Int): List<Card> = cards.upcoming(clock.millis(), n)
 
+    /** Respostas de primeira de hoje (dia de estudo, que vira às 04:00) e quantas foram certas. */
+    suspend fun todayAnswers(): AccuracyCount {
+        val since = StudyDay.startOf(clock.millis(), clock.zone)
+        return AccuracyCount(logs.answersSince(since), logs.correctSince(since))
+    }
+
     /** Estatísticas calculadas sobre todo o histórico (cartões, respostas e confusões). */
     suspend fun stats(): StatsSummary =
         computeStats(cards.all(), logs.all(), confusions.all(), clock.millis(), clock.zone)
@@ -142,6 +152,8 @@ class ReviewRepository(
             hiragana = gateProgress(Script.HIRAGANA),
             hiraganaOpen = open,
             katakana = if (open) gateProgress(Script.KATAKANA) else null,
+            todayAnswers = todayAnswers().total,
+            goal = settings.dailyGoal,
         )
     }
 

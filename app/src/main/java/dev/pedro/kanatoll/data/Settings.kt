@@ -63,6 +63,21 @@ class Settings(context: Context, name: String = "settings") {
         get() = prefs.getInt("toll_skips", 0)
         set(v) = prefs.edit().putInt("toll_skips", v).apply()
 
+    /** Meta de respostas por dia de estudo. 0 = sem meta. */
+    var dailyGoal: Int
+        get() = prefs.getInt("daily_goal", 0)
+        set(v) = prefs.edit().putInt("daily_goal", v.coerceIn(0, 200)).apply()
+
+    /** Resumo do dia numa notificação, depois das 21h. Começa desligado: ligar pede a permissão de notificações. */
+    var summaryEnabled: Boolean
+        get() = prefs.getBoolean("summary_enabled", false)
+        set(v) = prefs.edit().putBoolean("summary_enabled", v).apply()
+
+    /** Dia de estudo (AAAA-MM-DD) do último resumo enviado: no máximo um por dia. */
+    var lastSummaryDay: String
+        get() = prefs.getString("last_summary_day", "").orEmpty()
+        set(v) = prefs.edit().putString("last_summary_day", v).apply()
+
     /** Maior BPM já alcançado no modo Ritmo. */
     var rhythmBestBpm: Int
         get() = prefs.getInt("rhythm_best", 0)

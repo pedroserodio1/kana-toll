@@ -26,6 +26,8 @@ import dev.pedro.kanatoll.domain.KanaTable
 object QuizNotifier {
     private const val CHANNEL = "quiz"
     private const val NOTIF_ID = 1001
+    private const val SUMMARY_CHANNEL = "summary"
+    private const val SUMMARY_ID = 1002
     const val ACTION_ANSWER = "dev.pedro.kanatoll.QUIZ_ANSWER"
     const val EXTRA_CARD = "card_id"
     const val EXTRA_POSTED = "posted_at"
@@ -96,6 +98,27 @@ object QuizNotifier {
             .setTimeoutAfter(20_000)
             .build()
         NotificationManagerCompat.from(context).notify(NOTIF_ID, notification)
+    }
+
+    /** Resumo do dia: uma notificação discreta (sem som) com o que foi respondido e a situação da meta. */
+    @SuppressLint("MissingPermission")
+    fun postSummary(context: Context, text: String) {
+        if (!canNotify(context)) return
+        NotificationManagerCompat.from(context).createNotificationChannel(
+            NotificationChannelCompat.Builder(SUMMARY_CHANNEL, NotificationManagerCompat.IMPORTANCE_LOW)
+                .setName("Resumo do dia")
+                .setDescription("Quanto você estudou hoje e a meta diária.")
+                .build(),
+        )
+        val notification = NotificationCompat.Builder(context, SUMMARY_CHANNEL)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle("Resumo do dia")
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setContentIntent(openApp(context))
+            .setAutoCancel(true)
+            .build()
+        NotificationManagerCompat.from(context).notify(SUMMARY_ID, notification)
     }
 
     /** Botão "Enviar notificação de teste": ignora a janela do dia e o limite de 1 por hora. */

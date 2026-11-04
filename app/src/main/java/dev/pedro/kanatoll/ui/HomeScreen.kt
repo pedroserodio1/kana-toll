@@ -92,6 +92,15 @@ fun HomeScreen(
                         Tile("${gate.passed}", "portão do $gateName", MaterialTheme.colorScheme.onSurface, suffix = "/${gate.total}")
                     }
                 }
+                if (s.goal > 0) {
+                    Spacer(Modifier.height(12.dp))
+                    val reached = s.todayAnswers >= s.goal
+                    Text(
+                        if (reached) "Meta de hoje batida: ${s.todayAnswers} respostas" else "Meta de hoje: ${s.todayAnswers} de ${s.goal} respostas",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = if (reached) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                    )
+                }
                 Spacer(Modifier.height(14.dp))
                 Text(
                     "O anel mostra o portão. O katakana libera quando todos os cartões chegarem a 7 dias.",
